@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Activities_Fragments_Intents</string>
+    <string name="agregar_persona">agregar una persona a la lista</string>
+</resources>
