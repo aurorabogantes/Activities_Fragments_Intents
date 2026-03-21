@@ -34,14 +34,11 @@ public class MainActivity extends AppCompatActivity {
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
-            if (id == R.id.action_personas) {
-                navController.navigate(R.id.listaPersonaFragment);
+            if (id == R.id.action_persona) {
+                navController.navigate(R.id.listaPersonaApisFragment);
                 return true;
             } else if (id == R.id.action_carros) {
-                //navController.navigate(R.id.listaCarrosFragment);
-                return true;
-            } else if (id == R.id.action_persona_carro) {
-               // navController.navigate(R.id.listaCarroConPersonaFragment);
+                navController.navigate(R.id.listaCarrosFragment);
                 return true;
             } else {
                 throw new IllegalStateException("Unexpected value: " + id);

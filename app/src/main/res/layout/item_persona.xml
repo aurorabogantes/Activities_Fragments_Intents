@@ -54,10 +54,10 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Edad:"
+            android:text="Apellidos:"
             android:textStyle="bold"/>
         <TextView
-            android:id="@+id/text_edad"
+            android:id="@+id/text_apellidos"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingStart="8dp"/>
@@ -88,10 +88,10 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Estado civil:"
+            android:text="Estado:"
             android:textStyle="bold"/>
         <TextView
-            android:id="@+id/text_estado_civil"
+            android:id="@+id/text_estado"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingStart="8dp"/>

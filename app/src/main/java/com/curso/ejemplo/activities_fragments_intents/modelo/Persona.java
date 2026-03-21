@@ -1,20 +1,33 @@
 package com.curso.ejemplo.activities_fragments_intents.modelo;
 
-import java.time.LocalDate;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 public class Persona {
     private String nombre;
-    private int edad;
     private Date fechaNacimiento;
-    private int estadoCivil; // 1: soltero, 2: casado
+    private int estado; // 1: Activo, 2: inactivo
     private String identificacion;
-    public Persona(String identificacion, String nombre, int edad, Date fechaNacimiento, int estadoCivil) {
+
+    private String apellidos;
+    private int id;
+
+
+    public Persona(String identificacion, String nombre, String apellidos, Date fechaNacimiento, int estado) {
         this.identificacion = identificacion;
         this.nombre = nombre;
-        this.edad = edad;
+        this.apellidos = apellidos;
         this.fechaNacimiento = fechaNacimiento;
-        this.estadoCivil = estadoCivil;
+        this.estado = estado;
+        this.id = id;
+    }
+
+    private Persona() {
     }
 
     public String getNombre() {
@@ -24,13 +37,18 @@ public class Persona {
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
-
-    public int getEdad() {
-        return edad;
+    public void setId(int id) {
+        this.id = id;
+    }
+    public int getId() {
+        return  id;
+    }
+    public String getApellidos() {
+        return apellidos;
     }
 
-    public void setEdad(int edad) {
-        this.edad = edad;
+    public void setApellidos(String apellidos) {
+        this.apellidos = apellidos;
     }
 
     public Date getFechaNacimiento() {
@@ -41,20 +59,20 @@ public class Persona {
         this.fechaNacimiento = fechaNacimiento;
     }
 
-    public int getEstadoCivil() {
-        return estadoCivil;
+    public int getEstado() {
+        return estado;
     }
 
-    public void setEstadoCivil(int estadoCivil) {
-        this.estadoCivil = estadoCivil;
+    public void setEstado(int estadoCivil) {
+        this.estado = estadoCivil;
     }
 
-    public String getEstadoCivilDescripcion() {
-        switch (estadoCivil) {
+    public String getEstadoDescripcion() {
+        switch (estado) {
             case 1:
-                return "Soltero";
+                return "Activo";
             case 2:
-                return "Casado";
+                return "Inactivo";
             default:
                 return "Desconocido";
         }
@@ -67,4 +85,42 @@ public class Persona {
     public void setIdentificacion(String identificacion) {
         this.identificacion = identificacion;
     }
+
+    public static Persona fromJson(JSONObject obj) throws JSONException {
+        Persona persona = new Persona();
+        persona.id = obj.optInt("id", 0);
+        persona.identificacion = obj.optString("identificacion", "");
+        persona.nombre = obj.optString("nombre", "");
+        persona.apellidos = obj.optString("apellidos", "");
+        String fechaStr = obj.optString("fechaDeNacimiento", null);
+        if (fechaStr != null) {
+            try {
+                persona.fechaNacimiento = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(fechaStr);
+            } catch (ParseException e) {
+                persona.fechaNacimiento = null;
+            }
+        }
+        persona.estado = obj.optInt("estado", 0);
+        return persona;
+    }
+
+    public JSONObject toJson() {
+        JSONObject obj = new JSONObject();
+        try {
+            obj.put("id", id);
+            obj.put("identificacion", identificacion);
+            obj.put("nombre", nombre);
+            obj.put("apellidos", apellidos);
+            if (fechaNacimiento != null) {
+                String fechaStr = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(fechaNacimiento);
+                obj.put("fechaDeNacimiento", fechaStr);
+            }
+            obj.put("estado", estado);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return obj;
+    }
+
+
 }

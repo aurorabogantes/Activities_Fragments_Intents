@@ -53,22 +53,22 @@ public class PersonaAdapter extends  RecyclerView.Adapter<PersonaAdapter.Persona
     }
 
     public static class PersonaViewHolder extends RecyclerView.ViewHolder {
-        // Aquí puedes definir las vistas del item de persona
-        TextView nombre, identificacion, edad, fechaNacimiento, estadoCivil;
+
+        TextView nombre, identificacion, apellidos, fechaNacimiento, estado;
         public PersonaViewHolder(View itemView) {
             super(itemView);
             nombre = itemView.findViewById(R.id.text_nombre);
             identificacion = itemView.findViewById(R.id.text_identificacion);
-            edad = itemView.findViewById(R.id.text_edad);
+            apellidos = itemView.findViewById(R.id.text_apellidos);
             fechaNacimiento = itemView.findViewById(R.id.text_fecha_nacimiento);
-            estadoCivil = itemView.findViewById(R.id.text_estado_civil);
+            estado = itemView.findViewById(R.id.text_estado);
         }
 
         public void bind(final Persona persona, final OnItemClickListener listener) {
             nombre.setText(persona.getNombre());
             identificacion.setText(persona.getIdentificacion());
-            edad.setText(String.valueOf(persona.getEdad()));
-            estadoCivil.setText(persona.getEstadoCivilDescripcion());
+            apellidos.setText(String.valueOf(persona.getApellidos()));
+            estado.setText(persona.getEstadoDescripcion());
             // Formatea LocalDate a String
             SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
 

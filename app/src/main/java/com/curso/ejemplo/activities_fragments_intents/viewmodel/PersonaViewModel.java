@@ -12,12 +12,18 @@ import java.util.List;
 public class PersonaViewModel extends ViewModel {
     // Aquí puedes agregar lógica para manejar el estado de la UI relacionado con las personas
     // Por ejemplo, podrías cargar datos desde un repositorio o manejar eventos de la UI
-    private final PersonaRepository repositorio = new PersonaRepository();
+    private final PersonaRepository repositorio;
+
     private final MutableLiveData<List<Persona>> personas = new MutableLiveData<>();
 
     public PersonaViewModel() {
-        // Constructor donde puedes inicializar datos o realizar configuraciones iniciales
-        personas.setValue(repositorio.getPersonas());
+        repositorio = new PersonaRepository();
+        CargarPersonas();
+    }
+    private void CargarPersonas() {
+        repositorio.getPersonasAsync(personas::setValue);
+
+
     }
 
     // Métodos para interactuar con los datos de las personas pueden ser añadidos aquí
@@ -25,12 +31,10 @@ public class PersonaViewModel extends ViewModel {
         return personas;
     }
     public void addPersona(Persona persona) {
-        repositorio.addPersona(persona);
-        personas.setValue(repositorio.getPersonas());
+        repositorio.addPersonaAsync(persona, this::CargarPersonas);
     }
     public void editPersona(String identificacion, Persona personaEditada) {
-        repositorio.editPersona(identificacion, personaEditada);
-        personas.setValue(repositorio.getPersonas());
+        repositorio.editPersonaAsync(identificacion, personaEditada, this::CargarPersonas);
     }
     public Persona getPersonaByIdentificacion(String identificacion) {
         return repositorio.getPersonaByIdentificacion(identificacion);

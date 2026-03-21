@@ -41,7 +41,7 @@ public class ListaPersonaFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        // Initialize views and set up listeners here
+
         RecyclerView recyclerView = view.findViewById(R.id.recycler_personas);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new PersonaAdapter(persona -> mostrarDialogoPersona(persona));
@@ -64,25 +64,26 @@ public class ListaPersonaFragment extends Fragment {
 
         EditText etNombre = dialogView.findViewById(R.id.et_nombre);
         EditText etIdentificacion = dialogView.findViewById(R.id.et_identificacion);
-        EditText etEdad = dialogView.findViewById(R.id.et_edad);
+        EditText et_apellidos = dialogView.findViewById(R.id.et_apellidos);
         EditText etFechaNacimiento = dialogView.findViewById(R.id.et_fecha_nacimiento);
-        // Configurar el Spinner para el estado civil
-        Spinner spEstadoCivil = dialogView.findViewById(R.id.sp_estado_civil);
-        String[] estadosCiviles = {"Soltero", "Casado"};
-        ArrayAdapter<String> adapterSpinner = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, estadosCiviles);
+        // Configurar el Spinner para el estado
+        Spinner spEstado = dialogView.findViewById(R.id.sp_estado);
+        String[] estados = {"Activo", "Inactivo"};
+        ArrayAdapter<String> adapterSpinner = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, estados);
         adapterSpinner.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spEstadoCivil.setAdapter(adapterSpinner);
+        spEstado.setAdapter(adapterSpinner);
         Calendar calendar = Calendar.getInstance();
         // Si personaExistente no es nulo, cargar los datos de la persona
         if (personaExistente != null) {
             etNombre.setText(personaExistente.getNombre());
             etIdentificacion.setText(personaExistente.getIdentificacion());
             etIdentificacion.setEnabled(false); // No permitir editar la identificación
-            etEdad.setText(String.valueOf(personaExistente.getEdad()));
+            et_apellidos.setText(String.valueOf(personaExistente.getApellidos()));
+            et_apellidos.setEnabled(true);
             etFechaNacimiento.setText(new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(personaExistente.getFechaNacimiento()));
             calendar.setTime(personaExistente.getFechaNacimiento());
-        }else {
-          calendar.setTime(new Date());
+        } else {
+            calendar.setTime(new Date());
         }
 
         // Configurar el DatePicker para la fecha de nacimiento
@@ -90,7 +91,7 @@ public class ListaPersonaFragment extends Fragment {
 
             new DatePickerDialog(getContext(),
                     (view1, year, month, dayOfMonth) -> {
-                          String fecha = String.format("%02d", dayOfMonth)  + "-" + String.format("%02d", month + 1) + "-" +year;
+                        String fecha = String.format("%02d", dayOfMonth) + "-" + String.format("%02d", month + 1) + "-" + year;
                         etFechaNacimiento.setText(fecha);
                     },
                     calendar.get(Calendar.YEAR),
@@ -105,22 +106,25 @@ public class ListaPersonaFragment extends Fragment {
                 .setPositiveButton("Guardar", (dialog, which) -> {
                     String nombre = etNombre.getText().toString();
                     String identificacion = etIdentificacion.getText().toString();
-                    int edad = Integer.parseInt(etEdad.getText().toString());
-                    int estadoCivil =  spEstadoCivil.getSelectedItemPosition() +1;
+                    String apellidos = et_apellidos.getText().toString();
+                    int estado = spEstado.getSelectedItemPosition() + 1;
 
                     String fechaStr = etFechaNacimiento.getText().toString();
                     SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
                     Date fechaNacimiento = null;
+                    int Id = 0;
                     try {
                         fechaNacimiento = sdf.parse(fechaStr);
                     } catch (ParseException e) {
                         throw new RuntimeException(e);
-                    }                    Persona nuevaPersona = new Persona(identificacion,nombre, edad, fechaNacimiento, estadoCivil );
+                    }
+                    Persona persona = new Persona(identificacion, nombre, apellidos, fechaNacimiento, estado);
 
                     if (personaExistente == null) {
-                        personaViewModel.addPersona(nuevaPersona);
+                        personaViewModel.addPersona(persona);
                     } else {
-                        personaViewModel.editPersona(identificacion, nuevaPersona);
+                        persona.setId(personaExistente.getId());
+                        personaViewModel.editPersona(identificacion, persona);
                     }
                 })
                 .setNegativeButton("Cancelar", null)

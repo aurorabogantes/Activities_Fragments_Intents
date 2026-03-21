@@ -1,42 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    app:startDestination="@id/listaPersonaFragment">
-
+    app:startDestination="@id/listaPersonaApisFragment">
     <fragment
-        android:id="@+id/listaPersonaFragment"
+        android:id="@+id/listaPersonaApisFragment"
         android:name="com.curso.ejemplo.activities_fragments_intents.vista.ListaPersonaFragment"
-        android:label="Persona" >
-    <!--  <action
-          android:id="@+id/action_persona_to_carros"
-          app:destination="@id/listaCarrosFragment" />
-      <action
-          android:id="@+id/action_persona_to_carroConPersona"
-          app:destination="@id/listaCarroConPersonaFragment" />-->
-  </fragment>
-  <!--
+        android:label="PersonaApi" >
+    </fragment>
+
       <fragment
           android:id="@+id/listaCarrosFragment"
-          android:name="com.curso.ejemplo.ui.CarrosFragment"
+          android:name="com.curso.ejemplo.activities_fragments_intents.vista.ListaCarroFragment"
           android:label="Carros" >
-          <action
-              android:id="@+id/action_carros_to_persona"
-              app:destination="@id/listaPersonaFragment" />
-          <action
-              android:id="@+id/action_carros_to_carroConPersona"
-              app:destination="@id/listaCarroConPersonaFragment" />
       </fragment>
 
-      <fragment
-          android:id="@+id/listaCarroConPersonaFragment"
-          android:name="com.curso.ejemplo.ui.CarroConPersonaFragment"
-          android:label="Carro con Persona" >
-          <action
-              android:id="@+id/action_carroConPersona_to_persona"
-              app:destination="@id/listaPersonaFragmentersonaFragment" />
-          <action
-              android:id="@+id/action_carroConPersona_to_carros"
-              app:destination="@id/listaCarroConPersonaFragment" />
-      </fragment>
-  -->
+
+
     </navigation>
