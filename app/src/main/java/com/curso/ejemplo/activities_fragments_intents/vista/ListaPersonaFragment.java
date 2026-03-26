@@ -44,7 +44,7 @@ public class ListaPersonaFragment extends Fragment {
 
         RecyclerView recyclerView = view.findViewById(R.id.recycler_personas);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new PersonaAdapter(persona -> mostrarDialogoPersona(persona));
+        adapter = new PersonaAdapter(persona -> mostrarMenuOpciones(persona));
         recyclerView.setAdapter(adapter);
 
         personaViewModel = new ViewModelProvider(this).get(PersonaViewModel.class);
@@ -54,10 +54,24 @@ public class ListaPersonaFragment extends Fragment {
 
         // Configurar el FloatingActionButton para agregar una nueva persona
         FloatingActionButton fabAgregar = view.findViewById(R.id.fab_agregar);
-        fabAgregar.setOnClickListener(v -> mostrarDialogoPersona(null));
+        fabAgregar.setOnClickListener(v -> mostrarDialogoPersona(null, false));
     }
 
-    private void mostrarDialogoPersona(@Nullable Persona personaExistente) {
+    private void mostrarMenuOpciones(Persona persona) {
+        String[] opciones = {"Editar", "Ver"};
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Seleccione una opción")
+                .setItems(opciones, (dialog, which) -> {
+                    if (which == 0) {
+                        mostrarDialogoPersona(persona, false);
+                    } else {
+                        mostrarDialogoPersona(persona, true);
+                    }
+                })
+                .show();
+    }
+
+    private void mostrarDialogoPersona(@Nullable Persona personaExistente, boolean isReadOnly) {
         // Usa AlertDialog para simplificar el ejemplo
         LayoutInflater inflater = LayoutInflater.from(getContext());
         View dialogView = inflater.inflate(R.layout.dialog_persona, null);
@@ -79,16 +93,28 @@ public class ListaPersonaFragment extends Fragment {
             etIdentificacion.setText(personaExistente.getIdentificacion());
             etIdentificacion.setEnabled(false); // No permitir editar la identificación
             et_apellidos.setText(String.valueOf(personaExistente.getApellidos()));
-            et_apellidos.setEnabled(true);
             etFechaNacimiento.setText(new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(personaExistente.getFechaNacimiento()));
             calendar.setTime(personaExistente.getFechaNacimiento());
+            
+            int selection = personaExistente.getEstado() - 1;
+            if (selection >= 0 && selection < estados.length) {
+                spEstado.setSelection(selection);
+            }
         } else {
             calendar.setTime(new Date());
         }
 
+        if (isReadOnly) {
+            etNombre.setEnabled(false);
+            etIdentificacion.setEnabled(false);
+            et_apellidos.setEnabled(false);
+            etFechaNacimiento.setEnabled(false);
+            spEstado.setEnabled(false);
+        }
+
         // Configurar el DatePicker para la fecha de nacimiento
         etFechaNacimiento.setOnClickListener(v -> {
-
+            if (isReadOnly) return;
             new DatePickerDialog(getContext(),
                     (view1, year, month, dayOfMonth) -> {
                         String fecha = String.format("%02d", dayOfMonth) + "-" + String.format("%02d", month + 1) + "-" + year;
@@ -100,34 +126,37 @@ public class ListaPersonaFragment extends Fragment {
             ).show();
         });
 
-        new AlertDialog.Builder(getContext())
-                .setTitle(personaExistente == null ? "Agregar Persona" : "Editar Persona")
-                .setView(dialogView)
-                .setPositiveButton("Guardar", (dialog, which) -> {
-                    String nombre = etNombre.getText().toString();
-                    String identificacion = etIdentificacion.getText().toString();
-                    String apellidos = et_apellidos.getText().toString();
-                    int estado = spEstado.getSelectedItemPosition() + 1;
+        String title = personaExistente == null ? "Agregar Persona" : (isReadOnly ? "Ver Persona" : "Editar Persona");
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext())
+                .setTitle(title)
+                .setView(dialogView);
 
-                    String fechaStr = etFechaNacimiento.getText().toString();
-                    SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
-                    Date fechaNacimiento = null;
-                    int Id = 0;
-                    try {
-                        fechaNacimiento = sdf.parse(fechaStr);
-                    } catch (ParseException e) {
-                        throw new RuntimeException(e);
-                    }
-                    Persona persona = new Persona(identificacion, nombre, apellidos, fechaNacimiento, estado);
+        if (!isReadOnly) {
+            builder.setPositiveButton("Guardar", (dialog, which) -> {
+                String nombre = etNombre.getText().toString();
+                String identificacion = etIdentificacion.getText().toString();
+                String apellidos = et_apellidos.getText().toString();
+                int estado = spEstado.getSelectedItemPosition() + 1;
 
-                    if (personaExistente == null) {
-                        personaViewModel.addPersona(persona);
-                    } else {
-                        persona.setId(personaExistente.getId());
-                        personaViewModel.editPersona(identificacion, persona);
-                    }
-                })
-                .setNegativeButton("Cancelar", null)
+                String fechaStr = etFechaNacimiento.getText().toString();
+                SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
+                Date fechaNacimiento = null;
+                try {
+                    fechaNacimiento = sdf.parse(fechaStr);
+                } catch (ParseException e) {
+                    throw new RuntimeException(e);
+                }
+                Persona persona = new Persona(identificacion, nombre, apellidos, fechaNacimiento, estado);
+
+                if (personaExistente == null) {
+                    personaViewModel.addPersona(persona);
+                } else {
+                    persona.setId(personaExistente.getId());
+                    personaViewModel.editPersona(identificacion, persona);
+                }
+            });
+        }
+        builder.setNegativeButton(isReadOnly ? "Cerrar" : "Cancelar", null)
                 .show();
     }
 }

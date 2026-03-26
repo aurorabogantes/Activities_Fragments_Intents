@@ -37,17 +37,31 @@ public class ListaCarroFragment extends Fragment {
 
         RecyclerView recyclerView = view.findViewById(R.id.recycler_carros);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new CarroAdapter(this::mostrarDialogoCarro);
+        adapter = new CarroAdapter(this::mostrarMenuOpciones);
         recyclerView.setAdapter(adapter);
 
         carroViewModel = new ViewModelProvider(this).get(CarroViewModel.class);
         carroViewModel.getCarros().observe(getViewLifecycleOwner(), adapter::submitList);
 
         FloatingActionButton fabAgregar = view.findViewById(R.id.fab_agregar);
-        fabAgregar.setOnClickListener(v -> mostrarDialogoCarro(null));
+        fabAgregar.setOnClickListener(v -> mostrarDialogoCarro(null, false));
     }
 
-    private void mostrarDialogoCarro(@Nullable Carro carroExistente) {
+    private void mostrarMenuOpciones(Carro carro) {
+        String[] opciones = {"Editar", "Ver"};
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Seleccione una opción")
+                .setItems(opciones, (dialog, which) -> {
+                    if (which == 0) {
+                        mostrarDialogoCarro(carro, false);
+                    } else {
+                        mostrarDialogoCarro(carro, true);
+                    }
+                })
+                .show();
+    }
+
+    private void mostrarDialogoCarro(@Nullable Carro carroExistente, boolean isReadOnly) {
         LayoutInflater inflater = LayoutInflater.from(getContext());
         View dialogView = inflater.inflate(R.layout.dialog_carro, null);
 
@@ -73,25 +87,36 @@ public class ListaCarroFragment extends Fragment {
             }
         }
 
-        new AlertDialog.Builder(requireContext())
-                .setTitle(carroExistente == null ? "Agregar Carro" : "Editar Carro")
-                .setView(dialogView)
-                .setPositiveButton("Guardar", (dialog, which) -> {
-                    String placa = etPlaca.getText().toString();
-                    String modelo = etModelo.getText().toString();
-                    int estado = spEstado.getSelectedItemPosition() + 1;
+        if (isReadOnly) {
+            etPlaca.setEnabled(false);
+            etModelo.setEnabled(false);
+            spEstado.setEnabled(false);
+        }
 
-                    Carro carro = new Carro(placa, modelo, estado);
+        String title = carroExistente == null ? "Agregar Carro" : (isReadOnly ? "Ver Carro" : "Editar Carro");
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext())
+                .setTitle(title)
+                .setView(dialogView);
 
-                    if (carroExistente == null) {
-                        carroViewModel.addCarro(carro);
-                    } else {
-                        // Crucial: preserve the ID for the update to work
-                        carro.setId(carroExistente.getId());
-                        carroViewModel.editCarro(carroExistente.getPlaca(), carro);
-                    }
-                })
-                .setNegativeButton("Cancelar", null)
+        if (!isReadOnly) {
+            builder.setPositiveButton("Guardar", (dialog, which) -> {
+                String placa = etPlaca.getText().toString();
+                String modelo = etModelo.getText().toString();
+                int estado = spEstado.getSelectedItemPosition() + 1;
+
+                Carro carro = new Carro(placa, modelo, estado);
+
+                if (carroExistente == null) {
+                    carroViewModel.addCarro(carro);
+                } else {
+                    // Crucial: preserve the ID for the update to work
+                    carro.setId(carroExistente.getId());
+                    carroViewModel.editCarro(carroExistente.getPlaca(), carro);
+                }
+            });
+        }
+        
+        builder.setNegativeButton(isReadOnly ? "Cerrar" : "Cancelar", null)
                 .show();
     }
 }
